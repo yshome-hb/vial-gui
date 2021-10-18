@@ -234,11 +234,11 @@ class Keyboard:
     def reload_layers(self):
         """ Get how many layers the keyboard has """
 
-        self.layers = self.usb_send(self.dev, struct.pack("B", CMD_VIA_GET_LAYER_COUNT), retries=20)[1]
+        self.layers = self.usb_send(self.dev, struct.pack("B", CMD_VIA_GET_LAYER_COUNT), retries=20)[2]
 
     def reload_via_protocol(self):
         data = self.usb_send(self.dev, struct.pack("B", CMD_VIA_GET_PROTOCOL_VERSION), retries=20)
-        self.via_protocol = struct.unpack(">H", data[1:3])[0]
+        self.via_protocol = struct.unpack(">H", data[2:4])[0]
 
     def check_protocol_version(self):
         if self.via_protocol not in SUPPORTED_VIA_PROTOCOL or self.vial_protocol not in SUPPORTED_VIAL_PROTOCOL:
@@ -331,7 +331,7 @@ class Keyboard:
             offset = x
             sz = min(size - offset, BUFFER_FETCH_CHUNK)
             data = self.usb_send(self.dev, struct.pack(">BHB", CMD_VIA_KEYMAP_GET_BUFFER, offset, sz), retries=20)
-            keymap += data[4:4+sz]
+            keymap += data[5:5+sz]
 
         for layer in range(self.layers):
             for row, col in self.rowcol.keys():
@@ -340,7 +340,7 @@ class Keyboard:
                                        .format(row, col, self.rows, self.cols))
                 # determine where this (layer, row, col) will be located in keymap array
                 offset = layer * self.rows * self.cols * 2 + row * self.cols * 2 + col * 2
-                keycode = struct.unpack(">H", keymap[offset:offset+2])[0]
+                keycode = struct.unpack("H", keymap[offset:offset+2])[0]
                 self.layout[(layer, row, col)] = keycode
 
         for layer in range(self.layers):
@@ -358,9 +358,9 @@ class Keyboard:
     def reload_macros(self):
         """ Loads macro information from the keyboard """
         data = self.usb_send(self.dev, struct.pack("B", CMD_VIA_MACRO_GET_COUNT), retries=20)
-        self.macro_count = data[1]
+        self.macro_count = data[2]
         data = self.usb_send(self.dev, struct.pack("B", CMD_VIA_MACRO_GET_BUFFER_SIZE), retries=20)
-        self.macro_memory = struct.unpack(">H", data[1:3])[0]
+        self.macro_memory = struct.unpack(">H", data[2:4])[0]
 
         self.macro = b""
         if self.macro_memory:

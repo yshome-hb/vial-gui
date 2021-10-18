@@ -47,10 +47,10 @@ def hid_send(dev, msg, retries=1):
         first = False
         try:
             # add 00 at start for hidapi report id
-            if dev.write(b"\x00" + msg) != MSG_LEN + 1:
+            if dev.write(b"\x06" + msg) != MSG_LEN + 1:
                 continue
 
-            data = bytes(dev.read(MSG_LEN, timeout_ms=500))
+            data = bytes(dev.read(MSG_LEN+1, timeout_ms=500))
             if not data:
                 continue
         except OSError:
@@ -63,7 +63,7 @@ def hid_send(dev, msg, retries=1):
 
 
 def is_rawhid(desc):
-    if desc["usage_page"] != 0xFF60 or desc["usage"] != 0x61:
+    if desc["usage_page"] != 0xFF31 or desc["usage"] != 0x74:
         logging.warning("is_rawhid: {} does not match - usage_page={:04X} usage={:02X}".format(
             desc["path"], desc["usage_page"], desc["usage"]))
         return False
@@ -86,7 +86,7 @@ def is_rawhid(desc):
     dev.close()
 
     # must have VIA protocol version = 9
-    if data[0:3] != b"\x01\x00\x09":
+    if data[1:4] != b"\x01\x00\x09":
         logging.warning("is_rawhid: {} does not match - unexpected data in response {}".format(
             desc["path"], data.hex()))
         return False
