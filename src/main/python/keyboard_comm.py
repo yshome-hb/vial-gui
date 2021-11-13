@@ -326,7 +326,7 @@ class Keyboard:
 
         keymap = b""
         # calculate what the size of keymap will be and retrieve the entire binary buffer
-        size = self.layers * self.rows * self.cols * 2
+        size = self.layers * self.rows * self.cols
         for x in range(0, size, BUFFER_FETCH_CHUNK):
             offset = x
             sz = min(size - offset, BUFFER_FETCH_CHUNK)
@@ -339,8 +339,8 @@ class Keyboard:
                     raise RuntimeError("malformed vial.json, key references {},{} but matrix declares rows={} cols={}"
                                        .format(row, col, self.rows, self.cols))
                 # determine where this (layer, row, col) will be located in keymap array
-                offset = layer * self.rows * self.cols * 2 + row * self.cols * 2 + col * 2
-                keycode = struct.unpack("H", keymap[offset:offset+2])[0]
+                offset = layer * self.rows * self.cols + row * self.cols + col
+                keycode = struct.unpack("B", keymap[offset:offset+1])[0]
                 self.layout[(layer, row, col)] = keycode
 
         for layer in range(self.layers):
