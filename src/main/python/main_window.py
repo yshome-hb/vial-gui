@@ -25,6 +25,7 @@ from unlocker import Unlocker
 from util import tr, find_vial_devices, EXAMPLE_KEYBOARDS, KeycodeDisplay
 from vial_device import VialKeyboard
 from matrix_test import MatrixTest
+from keyboard_test import KeyboardTest
 
 import themes
 
@@ -67,11 +68,12 @@ class MainWindow(QMainWindow):
         self.qmk_settings = QmkSettings()
         self.matrix_tester = MatrixTest(self.layout_editor)
         self.rgb_configurator = RGBConfigurator()
+        self.keyboard_tester = KeyboardTest(self.layout_editor)
 
         self.editors = [(self.keymap_editor, "Keymap"), (self.layout_editor, "Layout"), (self.macro_recorder, "Macros"),
                         (self.rgb_configurator, "Lighting"), (self.tap_dance, "Tap Dance"), (self.combos, "Combos"),
                         (self.qmk_settings, "QMK Settings"),
-                        (self.matrix_tester, "Matrix tester"), (self.firmware_flasher, "Firmware updater")]
+                        (self.matrix_tester, "Matrix tester"), (self.keyboard_tester, "Keyboard tester"), (self.firmware_flasher, "Firmware updater")]
 
         Unlocker.global_layout_editor = self.layout_editor
 
@@ -273,7 +275,7 @@ class MainWindow(QMainWindow):
             self.current_device.keyboard.reload()
 
         for e in [self.layout_editor, self.keymap_editor, self.firmware_flasher, self.macro_recorder,
-                  self.tap_dance, self.combos, self.qmk_settings, self.matrix_tester, self.rgb_configurator]:
+                  self.tap_dance, self.combos, self.qmk_settings, self.matrix_tester, self.rgb_configurator, self.keyboard_tester]:
             e.rebuild(self.current_device)
 
     def refresh_tabs(self):
