@@ -288,6 +288,8 @@ QK_RCTL = 0x1100
 QK_RSFT = 0x1200
 QK_RALT = 0x1400
 QK_RGUI = 0x1800
+QK_FUNCTION = 0x2000
+QK_MAGIC = 0xE000
 
 
 def MT(mod):
@@ -372,6 +374,23 @@ KEYCODES_QUANTUM = [
     K(QK_LSFT|QK_LALT, "LSA(kc)", "LSA\n(kc)", "LSFT + LALT", masked=True),
     K(QK_LCTL|QK_LSFT, "C_S(kc)", "C_S\n(kc)", "LCTL + LSFT", masked=True),
 
+    K(QK_FUNCTION|0x00, "QK_FN0", "Fn0"),
+    K(QK_FUNCTION|0x01, "QK_FN1", "Fn1"),
+    K(QK_FUNCTION|0x02, "QK_FN2", "Fn2"),
+    K(QK_FUNCTION|0x03, "QK_FN3", "Fn3"),
+    K(QK_FUNCTION|0x04, "QK_FN4", "Fn4"),
+    K(QK_FUNCTION|0x05, "QK_FN5", "Fn5"),
+    K(QK_FUNCTION|0x06, "QK_FN6", "Fn6"),
+    K(QK_FUNCTION|0x07, "QK_FN7", "Fn7"),
+    K(QK_FUNCTION|0x08, "QK_FN8", "Fn8"),
+    K(QK_FUNCTION|0x09, "QK_FN9", "Fn9"),
+    K(QK_FUNCTION|0x0a, "QK_FN10", "Fn10"),
+    K(QK_FUNCTION|0x0b, "QK_FN11", "Fn11"),
+    K(QK_FUNCTION|0x0c, "QK_FN12", "Fn12"),
+    K(QK_FUNCTION|0x0d, "QK_FN13", "Fn13"),
+    K(QK_FUNCTION|0x0e, "QK_FN14", "Fn14"),
+    K(QK_FUNCTION|0x0f, "QK_FN15", "Fn15"),
+
     K(0x5A40, "QK_DEV_TURN", "DEV\nTurn", "Device turn"),
     K(0x5A41, "QK_DEV_USB", "DEV\nUSB", "Device USB"),
     K(0x5A42, "QK_DEV_24G", "DEV\n2.4G", "Device 2.4G"),
@@ -387,7 +406,9 @@ KEYCODES_QUANTUM = [
     K(0x5CF5, "KC_LAPO", "LA\n(", "Left Alt when held, ( when tapped"),
     K(0x5CF6, "KC_RAPC", "RA\n)", "Right Alt when held, ) when tapped"),
     K(0x5CD9, "KC_SFTENT", "RS\nEnter", "Right Shift when held, Enter when tapped"),
+]
 
+KEYCODES_MAGIC = [
     K(23554, "MAGIC_SWAP_CONTROL_CAPSLOCK", "Swap\nCtrl\nCaps", "Swap Caps Lock and Left Control", alias=["CL_SWAP"]),
     K(23563, "MAGIC_UNSWAP_CONTROL_CAPSLOCK", "Unswap\nCtrl\nCaps", "Unswap Caps Lock and Left Control",
       alias=["CL_NORM"]),
@@ -553,7 +574,7 @@ def recreate_keycodes():
 
     KEYCODES.clear()
     KEYCODES.extend(KEYCODES_SPECIAL + KEYCODES_BASIC + KEYCODES_SHIFTED + KEYCODES_ISO + KEYCODES_LAYERS +
-                    KEYCODES_QUANTUM + KEYCODES_BACKLIGHT + KEYCODES_MEDIA + KEYCODES_TAP_DANCE + KEYCODES_MACRO +
+                    KEYCODES_QUANTUM + KEYCODES_MAGIC + KEYCODES_BACKLIGHT + KEYCODES_MEDIA + KEYCODES_TAP_DANCE + KEYCODES_MACRO +
                     KEYCODES_USER + KEYCODES_HIDDEN)
 
 
@@ -598,8 +619,8 @@ def recreate_keyboard_keycodes(keyboard):
     KEYCODES_LAYERS.clear()
 
     if layers >= 4:
-        KEYCODES_LAYERS.append(Keycode(0x5F10, "FN_MO13", "Fn1\n(Fn3)"))
-        KEYCODES_LAYERS.append(Keycode(0x5F11, "FN_MO23", "Fn2\n(Fn3)"))
+        KEYCODES_LAYERS.append(Keycode(0x5F10, "FN_MO13", "FN\n(MO13)"))
+        KEYCODES_LAYERS.append(Keycode(0x5F11, "FN_MO23", "FN\n(MO24)"))
 
     KEYCODES_LAYERS.extend(generate_keycodes_for_mask("MO", 0x5100))
     KEYCODES_LAYERS.extend(generate_keycodes_for_mask("DF", 0x5200))

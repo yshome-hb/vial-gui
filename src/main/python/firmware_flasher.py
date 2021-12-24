@@ -163,7 +163,7 @@ class FirmwareFlasher(BasicEditor):
 
     def valid(self):
         return isinstance(self.device, VialBootloader) or\
-               isinstance(self.device, VialKeyboard) and self.device.keyboard.vibl
+               isinstance(self.device, VialKeyboard)
 
     def find_device_with_uid(self, cls, uid):
         devices = find_vial_devices({"definitions": {}})

@@ -60,8 +60,7 @@ class MatrixTest(BasicEditor):
 
     def valid(self):
         # Check if vial protocol is v3 or later
-        return isinstance(self.device, VialKeyboard) and \
-               (self.device.keyboard and self.device.keyboard.vial_protocol >= 3)
+        return isinstance(self.device, VialKeyboard)
 
     def reset_keyboard_widget(self):
         # reset keyboard widget
