@@ -107,22 +107,22 @@ class MatrixTest(BasicEditor):
 
         # Calculate the amount of bytes belong to 1 row, each bit is 1 key, so per 8 keys in a row,
         # a byte is needed for the row.
-        row_size = math.ceil(cols / 8)
+        col_size = math.ceil(rows / 8)
 
-        for row in range(rows):
+        for col in range(cols):
             # Make slice of bytes for the row (skip first 2 bytes, they're for VIAL)
-            row_data_start = 2 + (row * row_size)
-            row_data_end = row_data_start + row_size
-            row_data = data[row_data_start:row_data_end]
+            col_data_start = 2 + (col * col_size)
+            col_data_end = col_data_start + col_size
+            col_data = data[col_data_start:col_data_end]
 
             # Get each bit representing pressed state for col
-            for col in range(cols):
+            for row in range(rows):
                 # row_data is array of bytes, calculate in which byte the col is located
-                col_byte = len(row_data) - 1 - math.floor(col / 8)
+                row_byte = len(col_data) - 1 - math.floor(row / 8)
                 # since we select a single byte as slice of byte, mod 8 to get nth pos of byte
-                col_mod = (col % 8)
+                row_mod = (row % 8)
                 # write to matrix array
-                matrix[row][col] = (row_data[col_byte] >> col_mod) & 1
+                matrix[row][col] = (col_data[row_byte] >> row_mod) & 1
 
         # write matrix state to keyboard widget
         for w in self.keyboardWidget.widgets:
