@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QWidget, QHBoxLayout, QLabel
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt
 
 import math
 
 from basic_editor import BasicEditor
-from util import tr
+from util import tr, KeycodeDisplay
 from vial_device import VialKeyboard
 from keyboard_widget import KeyboardWidget
 from kle_serial import Key
-from util import KeycodeDisplay
+from keycodes import Keycode
+import keyboard
 
 ansi_layout = [
     [0,     0,     1,   1,   0x29,   "Esc"],
@@ -192,6 +193,16 @@ class KeyboardTest(BasicEditor):
 
     def activate(self):
         self.grabber.grabKeyboard()
+        keyboard.hook(self.on_key)
 
     def deactivate(self):
         self.grabber.releaseKeyboard()
+        keyboard.unhook_all()
+
+    def on_key(self, ev):
+        code = Keycode.find_by_recorder_alias(ev.name)
+        if code is not None:
+            for i in range(len(ansi_layout)):
+                if ansi_layout[i][4] == code.code:
+                    self.keyboardWidget.widgets[i].setPressed(ev.event_type=='down')
+                    self.keyboardWidget.update_layout()
