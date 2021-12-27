@@ -201,8 +201,19 @@ class KeyboardTest(BasicEditor):
 
     def on_key(self, ev):
         code = Keycode.find_by_recorder_alias(ev.name)
-        if code is not None:
-            for i in range(len(ansi_layout)):
-                if ansi_layout[i][4] == code.code:
-                    self.keyboardWidget.widgets[i].setPressed(ev.event_type=='down')
-                    self.keyboardWidget.update_layout()
+        if code is None:
+            return
+            
+        for i in range(len(ansi_layout)):
+            if ansi_layout[i][4] == code.code:
+                break
+        else:
+            return
+        
+        if ev.event_type == 'down' and self.keyboardWidget.widgets[i].pressed == False:
+            self.keyboardWidget.widgets[i].setPressed(True)
+            self.keyboardWidget.widgets[i].setActive(True)
+            self.keyboardWidget.update_layout()
+        elif ev.event_type == 'up' and self.keyboardWidget.widgets[i].pressed == True:
+            self.keyboardWidget.widgets[i].setPressed(False)
+            self.keyboardWidget.update_layout()
