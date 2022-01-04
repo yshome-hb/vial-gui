@@ -78,10 +78,10 @@ class VialBootloader(VialDevice):
             super().open()
         except OSError:
             return b""
-        self.send(pad_for_vibl(b"VC\x01"))
-        data = self.recv(8, timeout_ms=500)
+        self.send(b"\xFE\x00" + b"\x00" * 30)
+        data = self.recv(MSG_LEN, timeout_ms=500)
         super().close()
-        return data
+        return data[4:12]
 
 
 class VialDummyKeyboard(VialKeyboard):

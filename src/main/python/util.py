@@ -117,12 +117,18 @@ def find_vial_devices(via_stack_json, sideload_vid=None, sideload_pid=None):
                 dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
             ))
             filtered.append(VialBootloader(dev))
-        elif str(dev["vendor_id"] * 65536 + dev["product_id"]) in via_stack_json["definitions"] or via_stack_json["definitions"] == {"all"}:
+        elif str(dev["vendor_id"] * 65536 + dev["product_id"]) in via_stack_json["definitions"]:
             logging.info("Matching VID={:04X}, PID={:04X}, serial={}, path={} - VIA stack".format(
                 dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
             ))
             if is_rawhid(dev):
                 filtered.append(VialKeyboard(dev, via_stack=True))
+        elif via_stack_json["definitions"] == {"all"}:
+            logging.info("Trying VID={:04X}, PID={:04X}, serial={}, path={} - VIA stack".format(
+                dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
+            ))
+            if is_rawhid(dev):
+                filtered.append(VialBootloader(dev))
 
     if sideload_vid == sideload_pid == 0:
         filtered.append(VialDummyKeyboard())

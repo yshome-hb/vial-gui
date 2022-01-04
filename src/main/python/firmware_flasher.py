@@ -38,21 +38,21 @@ CHUNK = 64
 
 
 def cmd_flash(device, firmware, enable_insecure, log_cb, progress_cb, complete_cb, error_cb):
-    if firmware[0:8] not in [b"VIALFW00", b"VIALFW01"]:
-        return error_cb("Error: Invalid signature")
+    # if firmware[0:8] not in [b"VIALFW00", b"VIALFW01"]:
+    #     return error_cb("Error: Invalid signature")
 
-    fw_uid = firmware[8:16]
-    fw_ts = struct.unpack("<Q", firmware[16:24])[0]
-    log_cb("* Firmware build date: {} (UTC)".format(datetime.datetime.utcfromtimestamp(fw_ts)))
+    # fw_uid = firmware[8:16]
+    # fw_ts = struct.unpack("<Q", firmware[16:24])[0]
+    # log_cb("* Firmware build date: {} (UTC)".format(datetime.datetime.utcfromtimestamp(fw_ts)))
 
-    fw_hash = firmware[32:64]
-    fw_payload = firmware[64:]
+    # fw_hash = firmware[32:64]
+    # fw_payload = firmware[64:]
 
-    if hashlib.sha256(fw_payload).digest() != fw_hash:
-        return error_cb("Error: Firmware failed integrity check\n\texpected={}\n\tgot={}".format(
-            fw_hash.hex(),
-            hashlib.sha256(fw_payload).hexdigest()
-        ))
+    # if hashlib.sha256(fw_payload).digest() != fw_hash:
+    #     return error_cb("Error: Firmware failed integrity check\n\texpected={}\n\tgot={}".format(
+    #         fw_hash.hex(),
+    #         hashlib.sha256(fw_payload).hexdigest()
+    #     ))
 
     # Check bootloader is correct version
     send_retries(device, pad_for_vibl(b"VC\x00"))
@@ -224,10 +224,10 @@ class FirmwareFlasher(BasicEditor):
                 self.log("Looking for devices...")
                 QCoreApplication.processEvents()
                 time.sleep(1)
-                found = self.find_device_with_uid(VialKeyboard, self.uid_restore)
+                found = self.find_device_with_uid(VialBootloader, self.uid_restore)
 
             self.log("Found Vial Bootloader device at {}".format(found.desc["path"].decode("utf-8")))
-            # found.open()
+            found.open()
             self.device = found
 
         threading.Thread(target=lambda: cmd_flash(
