@@ -117,7 +117,7 @@ def find_vial_devices(via_stack_json, sideload_vid=None, sideload_pid=None):
                 dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
             ))
             filtered.append(VialBootloader(dev))
-        elif str(dev["vendor_id"] * 65536 + dev["product_id"]) in via_stack_json["definitions"]:
+        elif str(dev["vendor_id"] * 65536 + dev["product_id"]) in via_stack_json["definitions"] or via_stack_json["definitions"] == {"all"}:
             logging.info("Matching VID={:04X}, PID={:04X}, serial={}, path={} - VIA stack".format(
                 dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
             ))

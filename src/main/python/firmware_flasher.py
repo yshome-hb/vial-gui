@@ -166,7 +166,7 @@ class FirmwareFlasher(BasicEditor):
                isinstance(self.device, VialKeyboard)
 
     def find_device_with_uid(self, cls, uid):
-        devices = find_vial_devices({"definitions": {}})
+        devices = find_vial_devices({"definitions": {"all"}})
         for dev in devices:
             if isinstance(dev, cls) and dev.get_uid() == uid:
                 return dev
@@ -174,9 +174,9 @@ class FirmwareFlasher(BasicEditor):
 
     def on_click_select_file(self):
         dialog = QFileDialog()
-        dialog.setDefaultSuffix("vfw")
+        dialog.setDefaultSuffix("bin")
         dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        dialog.setNameFilters(["Vial Firmware (*.vfw)"])
+        dialog.setNameFilters(["Vial Firmware (*.bin)"])
         if dialog.exec_() == QDialog.Accepted:
             self.selected_firmware_path = dialog.selectedFiles()[0]
             self.txt_file_selector.setText(self.selected_firmware_path)
@@ -207,11 +207,11 @@ class FirmwareFlasher(BasicEditor):
 
             # keep track of which keyboard we should restore saved layout to
             self.uid_restore = self.device.keyboard.get_uid()
-            firmware_uid = firmware[8:16]
-            if self.uid_restore != firmware_uid:
-                self.log("Error: Firmware UID does not match keyboard UID. Check that you have the correct file")
-                self.unlock_ui(False)
-                return
+            # firmware_uid = firmware[8:16]
+            # if self.uid_restore != firmware_uid:
+            #     self.log("Error: Firmware UID does not match keyboard UID. Check that you have the correct file")
+            #     self.unlock_ui(False)
+            #     return
 
             Unlocker.unlock(self.device.keyboard)
 
@@ -224,10 +224,10 @@ class FirmwareFlasher(BasicEditor):
                 self.log("Looking for devices...")
                 QCoreApplication.processEvents()
                 time.sleep(1)
-                found = self.find_device_with_uid(VialBootloader, self.uid_restore)
+                found = self.find_device_with_uid(VialKeyboard, self.uid_restore)
 
             self.log("Found Vial Bootloader device at {}".format(found.desc["path"].decode("utf-8")))
-            found.open()
+            # found.open()
             self.device = found
 
         threading.Thread(target=lambda: cmd_flash(

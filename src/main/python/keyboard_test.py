@@ -213,7 +213,7 @@ class KeyboardTest(BasicEditor):
         if ev.event_type == 'down' and self.keyboardWidget.widgets[i].pressed == False:
             self.keyboardWidget.widgets[i].setPressed(True)
             self.keyboardWidget.widgets[i].setActive(True)
-            self.keyboardWidget.update_layout()
+            self.keyboardWidget.update()
         elif ev.event_type == 'up' and self.keyboardWidget.widgets[i].pressed == True:
             self.keyboardWidget.widgets[i].setPressed(False)
-            self.keyboardWidget.update_layout()
+            self.keyboardWidget.update()
