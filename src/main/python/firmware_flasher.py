@@ -16,25 +16,31 @@ from unlocker import Unlocker
 from util import tr, chunks, find_vial_devices, pad_for_vibl
 from vial_device import VialBootloader, VialKeyboard
 
+CHUNK = 16
 
 def send_retries(dev, data, retries=200):
     """ Sends usb packet up to 'retries' times, returns True if success, False if failed """
 
-    if len(data) != 64:
+    if len(data) > CHUNK:
         raise RuntimeError("sending invalid data length")
+    msg = b"\xA5"
+    msg += (len(data)+9).to_bytes(1, byteorder = 'little')
+    msg += b"\x01"
+    msg += (len(data)+7).to_bytes(1, byteorder = 'little')
+    msg += (len(data)+3).to_bytes(1, byteorder = 'little')
+    msg += b"\x04\x52\x28\x00"
+    msg += data
+    msg += b"\x00" * (32 - len(msg))
 
     for x in range(retries):
-        ret = dev.send(data)
-        if ret == len(data) + 1:
+        ret = dev.send(msg)
+        if ret == len(msg) + 1:
             return True
         elif ret < 0:
             time.sleep(0.01)
         else:
             return False
     return False
-
-
-CHUNK = 64
 
 
 def cmd_flash(device, firmware, enable_insecure, log_cb, progress_cb, complete_cb, error_cb):
@@ -55,46 +61,55 @@ def cmd_flash(device, firmware, enable_insecure, log_cb, progress_cb, complete_c
     #     ))
 
     # Check bootloader is correct version
-    send_retries(device, pad_for_vibl(b"VC\x00"))
-    ver = device.recv(8)[0]
-    log_cb("* Bootloader version: {}".format(ver))
-    if ver not in [0, 1]:
-        return error_cb("Error: Unsupported bootloader version")
+    # send_retries(device, pad_for_vibl(b"VC\x00"))
+    # ver = device.recv(8)[0]
+    # log_cb("* Bootloader version: {}".format(ver))
+    # if ver not in [0, 1]:
+    #     return error_cb("Error: Unsupported bootloader version")
 
-    send_retries(device, pad_for_vibl(b"VC\x01"))
-    uid = device.recv(8)
-    log_cb("* Vial ID: {}".format(uid.hex()))
+    # send_retries(device, pad_for_vibl(b"VC\x01"))
+    # uid = device.recv(8)
+    # log_cb("* Vial ID: {}".format(uid.hex()))
 
-    if uid == b"\xFF" * 8:
-        log_cb("\n\n\n!!! WARNING !!!\nBootloader UID is not set, make sure to configure it"
-               " before releasing production firmware\n!!! WARNING !!!\n\n")
+    # if uid == b"\xFF" * 8:
+    #     log_cb("\n\n\n!!! WARNING !!!\nBootloader UID is not set, make sure to configure it"
+    #            " before releasing production firmware\n!!! WARNING !!!\n\n")
 
-    if uid != fw_uid:
-        return error_cb("Error: Firmware package was built for different device\n\texpected={}\n\tgot={}".format(
-            fw_uid.hex(),
-            uid.hex()
-        ))
+    # if uid != fw_uid:
+    #     return error_cb("Error: Firmware package was built for different device\n\texpected={}\n\tgot={}".format(
+    #         fw_uid.hex(),
+    #         uid.hex()
+    #     ))
 
+    log_cb("Preparing...")
+    send_retries(device, b"\x01\xFF")
+    ret = device.recv(32)
+    if ret[2:3] == b"\x01":
+        log_cb("Device is ready for updating.")
+    else:
+        return error_cb("Error: Unsupported bootloader")
+
+    fw_payload = firmware[0:]
     # OK all checks complete, we can flash now
     while len(fw_payload) % CHUNK != 0:
-        fw_payload += b"\x00"
+        fw_payload += b"\xFF"
 
     # Flash
     log_cb("Flashing...")
-    send_retries(device, pad_for_vibl(b"VC\x02" + struct.pack("<H", len(fw_payload) // CHUNK)))
-    total = 0
-    for part in chunks(fw_payload, CHUNK):
-        if not send_retries(device, part):
-            return error_cb("Error while sending data, firmware is corrupted")
-        total += len(part)
-        progress_cb(total / len(fw_payload))
+    # send_retries(device, pad_for_vibl(b"VC\x02" + struct.pack("<H", len(fw_payload) // CHUNK)))
+    # total = 0
+    # for part in chunks(fw_payload, CHUNK):
+    #     if not send_retries(device, part):
+    #         return error_cb("Error while sending data, firmware is corrupted")
+    #     total += len(part)
+    #     progress_cb(total / len(fw_payload))
 
-    # Reboot
-    log_cb("Rebooting...")
-    # enable insecure mode on first boot in order to restore keymap/macros
-    if enable_insecure:
-        send_retries(device, pad_for_vibl(b"VC\x04"))
-    send_retries(device, pad_for_vibl(b"VC\x03"))
+    # # Reboot
+    # log_cb("Rebooting...")
+    # # enable insecure mode on first boot in order to restore keymap/macros
+    # if enable_insecure:
+    #     send_retries(device, pad_for_vibl(b"VC\x04"))
+    # send_retries(device, pad_for_vibl(b"VC\x03"))
 
     complete_cb("Done!")
 
