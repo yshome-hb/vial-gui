@@ -123,8 +123,14 @@ def find_vial_devices(via_stack_json, sideload_vid=None, sideload_pid=None):
             ))
             if is_rawhid(dev):
                 filtered.append(VialKeyboard(dev, via_stack=True))
-        elif via_stack_json["definitions"] == {"all"}:
-            logging.info("Trying VID={:04X}, PID={:04X}, serial={}, path={} - VIA stack".format(
+        elif via_stack_json["definitions"] == {"vial"}:
+            logging.info("Trying VID={:04X}, PID={:04X}, serial={}, path={} - vial stack".format(
+                dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
+            ))
+            if is_rawhid(dev):
+                filtered.append(VialKeyboard(dev))
+        elif via_stack_json["definitions"] == {"vibl"}:
+            logging.info("Trying VID={:04X}, PID={:04X}, serial={}, path={} - vibl stack".format(
                 dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
             ))
             if is_rawhid(dev):

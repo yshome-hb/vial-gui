@@ -197,7 +197,10 @@ class FirmwareFlasher(BasicEditor):
                isinstance(self.device, VialKeyboard)
 
     def find_device_with_uid(self, cls, uid):
-        devices = find_vial_devices({"definitions": {"all"}})
+        if cls == VialBootloader:
+            devices = find_vial_devices({"definitions": {"vibl"}})
+        else:
+            devices = find_vial_devices({"definitions": {"vial"}})
         for dev in devices:
             if isinstance(dev, cls) and dev.get_uid() == uid:
                 return dev
@@ -297,13 +300,13 @@ class FirmwareFlasher(BasicEditor):
                 found = self.find_device_with_uid(VialKeyboard, self.uid_restore)
 
             self.log("Found Vial keyboard at {}".format(found.desc["path"].decode("utf-8")))
-            found.open()
+            # found.open() #TODO
             self.device = found
             self.log("Restoring saved layout...")
             QCoreApplication.processEvents()
-            found.keyboard.restore_layout(self.layout_restore)
-            found.keyboard.lock()
-            found.close()
+            # found.keyboard.restore_layout(self.layout_restore)
+            # found.keyboard.lock()
+            # found.close()
             self.log("Done!")
 
         self.unlock_ui()
