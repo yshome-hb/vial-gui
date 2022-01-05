@@ -18,18 +18,31 @@ from vial_device import VialBootloader, VialKeyboard
 
 CHUNK = 16
 
-def send_retries(dev, data, retries=200):
-    """ Sends usb packet up to 'retries' times, returns True if success, False if failed """
+def crc16(data):
+    crc = 0xFFFF
+    for pos in data:
+        crc ^= pos
+        for i in range(8):
+            if ((crc & 1) != 0):
+                crc >>= 1
+                crc ^= 0xA001
+            else:
+                crc >>= 1
+    return crc.to_bytes(2, byteorder="little")
 
-    if len(data) > CHUNK:
+def send_retries(dev, cmd, data=None, retries=200):
+    """ Sends usb packet up to 'retries' times, returns True if success, False if failed """
+    if data is not None:
+        cmd += data
+    if len(cmd) > (CHUNK + 4):
         raise RuntimeError("sending invalid data length")
     msg = b"\xA5"
-    msg += (len(data)+9).to_bytes(1, byteorder = 'little')
+    msg += (len(cmd)+9).to_bytes(1, byteorder = 'little')
     msg += b"\x01"
-    msg += (len(data)+7).to_bytes(1, byteorder = 'little')
-    msg += (len(data)+3).to_bytes(1, byteorder = 'little')
+    msg += (len(cmd)+7).to_bytes(1, byteorder = 'little')
+    msg += (len(cmd)+3).to_bytes(1, byteorder = 'little')
     msg += b"\x04\x52\x28\x00"
-    msg += data
+    msg += cmd
     msg += b"\x00" * (32 - len(msg))
 
     for x in range(retries):
@@ -96,20 +109,23 @@ def cmd_flash(device, firmware, enable_insecure, log_cb, progress_cb, complete_c
 
     # Flash
     log_cb("Flashing...")
-    # send_retries(device, pad_for_vibl(b"VC\x02" + struct.pack("<H", len(fw_payload) // CHUNK)))
-    # total = 0
-    # for part in chunks(fw_payload, CHUNK):
-    #     if not send_retries(device, part):
-    #         return error_cb("Error while sending data, firmware is corrupted")
-    #     total += len(part)
-    #     progress_cb(total / len(fw_payload))
+    total = 0
+    for part in chunks(fw_payload, CHUNK):
+        fw_addr = ret[9:11]
+        part += crc16(fw_addr+part)
+        if not send_retries(device, fw_addr, part):
+            return error_cb("Error while sending data, firmware is corrupted")
+        ret = device.recv(32)
+        if ret[2:3] != b"\x01":
+            return error_cb("Error while flashing, receive invalid data")
+        total += len(part)
+        progress_cb(total / len(fw_payload))
 
-    # # Reboot
-    # log_cb("Rebooting...")
-    # # enable insecure mode on first boot in order to restore keymap/macros
-    # if enable_insecure:
-    #     send_retries(device, pad_for_vibl(b"VC\x04"))
-    # send_retries(device, pad_for_vibl(b"VC\x03"))
+    # Reboot
+    log_cb("Rebooting...")
+    # enable insecure mode on first boot in order to restore keymap/macros
+    fw_addr += (int.from_bytes(fw_addr, byteorder='little', signed=False) ^ 0xFFFF).to_bytes(2, byteorder = 'little')
+    send_retries(device, b"\x02\xFF", fw_addr)
 
     complete_cb("Done!")
 
