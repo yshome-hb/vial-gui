@@ -66,8 +66,8 @@ class ActionSequence(BasicAction):
     def serialize(self, vial_protocol):
         out = b""
         for k in self.sequence:
-            if vial_protocol >= 2:
-                out += struct.pack("B", SS_QMK_PREFIX)
+            # if vial_protocol >= 2:
+            out += struct.pack("B", SS_QMK_PREFIX)
             out += self.serialize_prefix()
             out += struct.pack("B", k.code)
         return out

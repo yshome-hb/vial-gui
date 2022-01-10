@@ -774,9 +774,9 @@ class Keyboard:
         """
         Deserialize a single macro
         """
-        if self.vial_protocol >= 2:
-            return macro_deserialize_v2(data)
-        return macro_deserialize_v1(data)
+        # if self.vial_protocol >= 2:
+        #     return macro_deserialize_v2(data)
+        return macro_deserialize_v2(data)
 
     def macros_serialize(self, macros):
         """
