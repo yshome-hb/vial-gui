@@ -57,43 +57,44 @@ def send_retries(dev, cmd, data=None, retries=200):
 
 
 def cmd_flash(device, firmware, enable_insecure, log_cb, progress_cb, complete_cb, error_cb):
-    # if firmware[0:8] not in [b"VIALFW00", b"VIALFW01"]:
-    #     return error_cb("Error: Invalid signature")
+    """
+    if firmware[0:8] not in [b"VIALFW00", b"VIALFW01"]:
+        return error_cb("Error: Invalid signature")
 
-    # fw_uid = firmware[8:16]
-    # fw_ts = struct.unpack("<Q", firmware[16:24])[0]
-    # log_cb("* Firmware build date: {} (UTC)".format(datetime.datetime.utcfromtimestamp(fw_ts)))
+    fw_uid = firmware[8:16]
+    fw_ts = struct.unpack("<Q", firmware[16:24])[0]
+    log_cb("* Firmware build date: {} (UTC)".format(datetime.datetime.utcfromtimestamp(fw_ts)))
 
-    # fw_hash = firmware[32:64]
-    # fw_payload = firmware[64:]
+    fw_hash = firmware[32:64]
+    fw_payload = firmware[64:]
 
-    # if hashlib.sha256(fw_payload).digest() != fw_hash:
-    #     return error_cb("Error: Firmware failed integrity check\n\texpected={}\n\tgot={}".format(
-    #         fw_hash.hex(),
-    #         hashlib.sha256(fw_payload).hexdigest()
-    #     ))
+    if hashlib.sha256(fw_payload).digest() != fw_hash:
+        return error_cb("Error: Firmware failed integrity check\n\texpected={}\n\tgot={}".format(
+            fw_hash.hex(),
+            hashlib.sha256(fw_payload).hexdigest()
+        ))
 
     # Check bootloader is correct version
-    # send_retries(device, pad_for_vibl(b"VC\x00"))
-    # ver = device.recv(8)[0]
-    # log_cb("* Bootloader version: {}".format(ver))
-    # if ver not in [0, 1]:
-    #     return error_cb("Error: Unsupported bootloader version")
+    send_retries(device, pad_for_vibl(b"VC\x00"))
+    ver = device.recv(8)[0]
+    log_cb("* Bootloader version: {}".format(ver))
+    if ver not in [0, 1]:
+        return error_cb("Error: Unsupported bootloader version")
 
-    # send_retries(device, pad_for_vibl(b"VC\x01"))
-    # uid = device.recv(8)
-    # log_cb("* Vial ID: {}".format(uid.hex()))
+    send_retries(device, pad_for_vibl(b"VC\x01"))
+    uid = device.recv(8)
+    log_cb("* Vial ID: {}".format(uid.hex()))
 
-    # if uid == b"\xFF" * 8:
-    #     log_cb("\n\n\n!!! WARNING !!!\nBootloader UID is not set, make sure to configure it"
-    #            " before releasing production firmware\n!!! WARNING !!!\n\n")
+    if uid == b"\xFF" * 8:
+        log_cb("\n\n\n!!! WARNING !!!\nBootloader UID is not set, make sure to configure it"
+               " before releasing production firmware\n!!! WARNING !!!\n\n")
 
-    # if uid != fw_uid:
-    #     return error_cb("Error: Firmware package was built for different device\n\texpected={}\n\tgot={}".format(
-    #         fw_uid.hex(),
-    #         uid.hex()
-    #     ))
-
+    if uid != fw_uid:
+        return error_cb("Error: Firmware package was built for different device\n\texpected={}\n\tgot={}".format(
+            fw_uid.hex(),
+            uid.hex()
+        ))
+    """
     log_cb("Preparing...")
     send_retries(device, b"\x01\xFF")
     ret = device.recv(32)
@@ -243,11 +244,13 @@ class FirmwareFlasher(BasicEditor):
 
             # keep track of which keyboard we should restore saved layout to
             self.uid_restore = self.device.keyboard.get_uid()
-            # firmware_uid = firmware[8:16]
-            # if self.uid_restore != firmware_uid:
-            #     self.log("Error: Firmware UID does not match keyboard UID. Check that you have the correct file")
-            #     self.unlock_ui(False)
-            #     return
+            """
+            firmware_uid = firmware[8:16]
+            if self.uid_restore != firmware_uid:
+                self.log("Error: Firmware UID does not match keyboard UID. Check that you have the correct file")
+                self.unlock_ui(False)
+                return
+            """
 
             Unlocker.unlock(self.device.keyboard)
 
