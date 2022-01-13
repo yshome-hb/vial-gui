@@ -170,7 +170,7 @@ class FirmwareFlasher(BasicEditor):
         self.btn_flash.clicked.connect(self.on_click_flash)
         progress_flash.addWidget(self.btn_flash)
         self.chk_restore_keymap = QCheckBox(tr("Flasher", "Restore current layout after flashing"))
-        self.chk_restore_keymap.setChecked(True)
+        self.chk_restore_keymap.setChecked(False)
         self.addWidget(self.chk_restore_keymap)
         self.addLayout(progress_flash)
 
@@ -300,13 +300,13 @@ class FirmwareFlasher(BasicEditor):
                 found = self.find_device_with_uid(VialKeyboard, self.uid_restore)
 
             self.log("Found Vial keyboard at {}".format(found.desc["path"].decode("utf-8")))
-            # found.open() #TODO
+            found.open()
             self.device = found
             self.log("Restoring saved layout...")
             QCoreApplication.processEvents()
-            # found.keyboard.restore_layout(self.layout_restore)
-            # found.keyboard.lock()
-            # found.close()
+            found.keyboard.restore_layout(self.layout_restore)
+            found.keyboard.lock()
+            found.close()
             self.log("Done!")
 
         self.unlock_ui()

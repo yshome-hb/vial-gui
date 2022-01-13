@@ -111,7 +111,10 @@ def find_vial_devices(via_stack_json, sideload_vid=None, sideload_pid=None):
                 dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
             ))
             if is_rawhid(dev):
-                filtered.append(VialKeyboard(dev))
+                if via_stack_json["definitions"] == {"vibl"}:
+                    filtered.append(VialBootloader(dev))
+                else:
+                    filtered.append(VialKeyboard(dev))
         elif VIBL_SERIAL_NUMBER_MAGIC in dev["serial_number"]:
             logging.info("Matching VID={:04X}, PID={:04X}, serial={}, path={} - vibl serial magic".format(
                 dev["vendor_id"], dev["product_id"], dev["serial_number"], dev["path"]
