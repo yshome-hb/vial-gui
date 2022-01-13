@@ -169,8 +169,10 @@ class FirmwareFlasher(BasicEditor):
         self.btn_flash.setText(tr("Flasher", "Flash"))
         self.btn_flash.clicked.connect(self.on_click_flash)
         progress_flash.addWidget(self.btn_flash)
-        self.chk_restore_keymap = QCheckBox(tr("Flasher", "Restore current layout after flashing"))
-        self.chk_restore_keymap.setChecked(False)
+        self.chk_restore_keymap = QCheckBox(main)
+        self.chk_restore_keymap.hide()
+        self.chk_restore_keymap.setText(tr("Flasher", "Restore current layout after flashing"))
+        self.chk_restore_keymap.setChecked(True)
         self.addWidget(self.chk_restore_keymap)
         self.addLayout(progress_flash)
 
@@ -194,7 +196,7 @@ class FirmwareFlasher(BasicEditor):
 
     def valid(self):
         return isinstance(self.device, VialBootloader) or\
-               isinstance(self.device, VialKeyboard)
+               isinstance(self.device, VialKeyboard) and self.device.keyboard.vibl
 
     def find_device_with_uid(self, cls, uid):
         if cls == VialBootloader:

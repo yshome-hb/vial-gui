@@ -8,6 +8,7 @@ from keycodes import RESET_KEYCODE, Keycode
 from kle_serial import Serial as KleSerial
 from macro_action import SS_TAP_CODE, SS_DOWN_CODE, SS_UP_CODE, ActionText, ActionTap, ActionDown, ActionUp, \
     SS_QMK_PREFIX, SS_DELAY_CODE, ActionDelay
+from macro_action_ui import tag_to_action
 from unlocker import Unlocker
 from util import MSG_LEN, hid_send, chunks
 
@@ -88,6 +89,9 @@ def macro_deserialize_v1(data):
     data = bytearray(data)
     while len(data) > 0:
         if data[0] in [SS_TAP_CODE, SS_DOWN_CODE, SS_UP_CODE]:
+            if len(data) < 2:
+                break
+
             # append to previous *_CODE if it's the same type, otherwise create a new entry
             if len(sequence) > 0 and isinstance(sequence[-1], list) and sequence[-1][0] == data[0]:
                 sequence[-1][1].append(data[1])
@@ -129,7 +133,13 @@ def macro_deserialize_v2(data):
     data = bytearray(data)
     while len(data) > 0:
         if data[0] == SS_QMK_PREFIX:
+            if len(data) < 2:
+                break
+
             if data[1] in [SS_TAP_CODE, SS_DOWN_CODE, SS_UP_CODE]:
+                if len(data) < 3:
+                    break
+
                 # append to previous *_CODE if it's the same type, otherwise create a new entry
                 if len(sequence) > 0 and isinstance(sequence[-1], list) and sequence[-1][0] == data[1]:
                     sequence[-1][1].append(data[2])
@@ -139,12 +149,19 @@ def macro_deserialize_v2(data):
                 for x in range(3):
                     data.pop(0)
             elif data[1] == SS_DELAY_CODE:
+                if len(data) < 4:
+                    break
+
                 # decode the delay
                 delay = (data[2] - 1) + (data[3] - 1) * 255
                 sequence.append([SS_DELAY_CODE, delay])
 
                 for x in range(4):
                     data.pop(0)
+            else:
+                # it is clearly malformed, just skip this byte and hope for the best
+                data.pop(0)
+                data.pop(0)
         else:
             # append to previous string if it is a string, otherwise create a new entry
             ch = chr(data[0])
@@ -199,6 +216,7 @@ class Keyboard:
         self.macro = b""
         self.vibl = False
         self.custom_keycodes = None
+        self.midi = None
 
         self.lighting_qmk_rgblight = self.lighting_qmk_backlight = self.lighting_vialrgb = False
 
@@ -281,6 +299,7 @@ class Keyboard:
         if "vial" in payload:
             vial = payload["vial"]
             self.vibl = vial.get("vibl", False)
+            self.midi = vial.get("midi", None)
 
         self.layout_labels = payload["layouts"].get("labels")
 
@@ -306,9 +325,11 @@ class Keyboard:
                 self.encoderpos[idx] = True
                 self.encoder_count = max(self.encoder_count, idx + 1)
                 self.encoders.append(key)
-            elif key.labels[0] and "," in key.labels[0]:
-                row, col = key.labels[0].split(",")
-                row, col = int(row), int(col)
+            elif key.decal or (key.labels[0] and "," in key.labels[0]):
+                row, col = 0, 0
+                if key.labels[0] and "," in key.labels[0]:
+                    row, col = key.labels[0].split(",")
+                    row, col = int(row), int(col)
                 key.row = row
                 key.col = col
                 self.rowcol[(row, col)] = True
@@ -369,6 +390,8 @@ class Keyboard:
                 sz = min(BUFFER_FETCH_CHUNK, self.macro_memory - x)
                 data = self.usb_send(self.dev, struct.pack(">BHB", CMD_VIA_MACRO_GET_BUFFER, x, sz), retries=20)
                 self.macro += data[4:4+sz]
+                if self.macro.count(b"\x00") > self.macro_count:
+                    break
             # macros are stored as NUL-separated strings, so let's clean up the buffer
             # ensuring we only get macro_count strings after we split by NUL
             macros = self.macro.split(b"\x00") + [b""] * self.macro_count
@@ -666,13 +689,7 @@ class Keyboard:
     def restore_macros(self, macros):
         if not isinstance(macros, list):
             return
-        tag_to_action = {
-            "down": ActionDown,
-            "up": ActionUp,
-            "tap": ActionTap,
-            "text": ActionText,
-            "delay": ActionDelay,
-        }
+        
         full_macro = []
         for macro in macros:
             actions = []
@@ -758,7 +775,8 @@ class Keyboard:
         if self.via_protocol < 0:
             return
 
-        data = self.usb_send(self.dev, struct.pack("BB", CMD_VIA_GET_KEYBOARD_VALUE, VIA_SWITCH_MATRIX_STATE), retries=20)
+        data = self.usb_send(self.dev, struct.pack("BB", CMD_VIA_GET_KEYBOARD_VALUE, VIA_SWITCH_MATRIX_STATE),
+                             retries=3)
         return data
 
     def macro_serialize(self, macro):
