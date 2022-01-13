@@ -289,6 +289,7 @@ QK_RSFT = 0x1200
 QK_RALT = 0x1400
 QK_RGUI = 0x1800
 QK_FUNCTION = 0x2000
+QK_BL   = 0xD000
 QK_MAGIC = 0xE000
 
 
@@ -447,13 +448,17 @@ KEYCODES_MAGIC = [
 ]
 
 KEYCODES_BACKLIGHT = [
-    K(23743, "BL_TOGG", "BL\nToggle", "Turn the backlight on or off"),
-    K(23744, "BL_STEP", "BL\nCycle", "Cycle through backlight levels"),
-    K(23745, "BL_BRTG", "BL\nBreath", "Toggle backlight breathing"),
-    K(23739, "BL_ON", "BL On", "Set the backlight to max brightness"),
-    K(23740, "BL_OFF", "BL Off", "Turn the backlight off"),
-    K(23742, "BL_INC", "BL +", "Increase the backlight level"),
-    K(23741, "BL_DEC", "BL - ", "Decrease the backlight level"),
+    K(QK_BL|0x0000|0x01, "BL_ON", "BL On", "Set the backlight to max brightness"),
+    K(QK_BL|0x0000|0x00, "BL_OFF", "BL Off", "Turn the backlight off"),
+    K(QK_BL|0x0001|0x00, "BL_TOGG", "BL\nToggle", "Turn the backlight on or off"),
+    K(QK_BL|0x0300|0x00, "BL_STEP", "BL\nCycle", "Cycle through backlight levels"),
+    K(QK_BL|0x0300|0x01, "BL_INC", "BL\nLevel +", "Increase the backlight level"),
+    K(QK_BL|0x0300|0x02, "BL_DEC", "BL\nLevel - ", "Decrease the backlight level"),
+    K(QK_BL|0x0400|0x00, "BL_TMS", "BL\nTimeout", "Cycle through backlight timeout"),
+    K(QK_BL|0x0600|0x00, "BL_MD", "BL\nMode", "Cycle through backlight effect mode"),
+    K(QK_BL|0x0700|0x00, "BL_ACL", "BL\nEffect +", "Increase backlight effect speed"),
+    K(QK_BL|0x0700|0x00, "BL_DCL", "BL\nEffect -", "Decrease backlight effect speed"),
+    K(QK_BL|0x0A00|0x00, "BL_CLS", "BL\nColor", "Cycle through backlight effect color"),
 
     K(23746, "RGB_TOG", "RGB\nToggle", "Toggle RGB lighting on or off"),
     K(23747, "RGB_MOD", "RGB\nMode +", "Next RGB mode"),
