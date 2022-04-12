@@ -4,10 +4,10 @@ from PyQt5.QtCore import Qt
 
 import math
 
-from basic_editor import BasicEditor
+from editor.basic_editor import BasicEditor
 from util import tr, KeycodeDisplay
 from vial_device import VialKeyboard
-from keyboard_widget import KeyboardWidget
+from widgets.keyboard_widget import KeyboardWidget
 from kle_serial import Key
 from keycodes import Keycode
 import keyboard
