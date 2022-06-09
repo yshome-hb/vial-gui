@@ -5,6 +5,7 @@ import hashlib
 import struct
 import time
 import threading
+import sys
 
 from PyQt5.QtCore import pyqtSignal, QCoreApplication
 from PyQt5.QtGui import QFontDatabase
@@ -196,8 +197,9 @@ class FirmwareFlasher(BasicEditor):
             self.chk_restore_keymap.show()
 
     def valid(self):
-        return isinstance(self.device, VialBootloader) or\
-               isinstance(self.device, VialKeyboard) and self.device.keyboard.vibl
+        return (isinstance(self.device, VialBootloader) or \
+               (isinstance(self.device, VialKeyboard) and self.device.keyboard.vibl)) \
+               and sys.platform != "emscripten"
 
     def find_device_with_uid(self, cls, uid):
         if cls == VialBootloader:

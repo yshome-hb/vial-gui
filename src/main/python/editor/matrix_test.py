@@ -62,13 +62,14 @@ class MatrixTest(BasicEditor):
     def valid(self):
         # Check if vial protocol is v3 or later
         return isinstance(self.device, VialKeyboard) and \
-               (self.device.keyboard and self.device.keyboard.vial_protocol >= VIAL_PROTOCOL_MATRIX_TESTER)
+               (self.device.keyboard and self.device.keyboard.vial_protocol >= VIAL_PROTOCOL_MATRIX_TESTER) and \
+               ((self.device.keyboard.cols // 8 + 1) * self.device.keyboard.rows <= 28)
 
     def reset_keyboard_widget(self):
         # reset keyboard widget
         for w in self.keyboardWidget.widgets:
             w.setPressed(False)
-            w.setActive(False)
+            w.setOn(False)
 
         self.keyboardWidget.update_layout()
         self.keyboardWidget.update()
@@ -135,7 +136,7 @@ class MatrixTest(BasicEditor):
                 if row < len(matrix) and col < len(matrix[row]):
                     w.setPressed(matrix[row][col])
                     if matrix[row][col]:
-                        w.setActive(True)
+                        w.setOn(True)
 
         self.keyboardWidget.update_layout()
         self.keyboardWidget.update()
