@@ -417,9 +417,9 @@ KEYCODES_QUANTUM = [
     K(0x5A40, "QK_DEV_TURN", "DEV\nTurn", "Device turn"),
     K(0x5A41, "QK_DEV_USB", "DEV\nUSB", "Device USB"),
     K(0x5A42, "QK_DEV_24G", "DEV\n2.4G", "Device 2.4G"),
-    K(0x5A43, "QK_DEV_BLE0", "DEV\nBLE0", "Device BLE0"),
-    K(0x5A44, "QK_DEV_BLE1", "DEV\nBLE1", "Device BLE1"),
-    K(0x5A45, "QK_DEV_BLE2", "DEV\nBLE2", "Device BLE2"),
+    K(0x5A43, "QK_DEV_BT0", "DEV\nBT0", "Device BT0"),
+    K(0x5A44, "QK_DEV_BT1", "DEV\nBT1", "Device BT1"),
+    K(0x5A45, "QK_DEV_BT2", "DEV\nBT2", "Device BT2"),
 
     K(0x5C16, "KC_GESC", "~\nEsc", "Esc normally, but ~ when Shift or GUI is pressed"),
     K(0x5CD7, "KC_LSPO", "LS\n(", "Left Shift when held, ( when tapped"),

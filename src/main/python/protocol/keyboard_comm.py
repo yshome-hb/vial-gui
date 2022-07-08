@@ -203,7 +203,7 @@ class Keyboard(ProtocolMacro, ProtocolDynamic, ProtocolTapDance, ProtocolCombo, 
                                        .format(row, col, self.rows, self.cols))
                 # determine where this (layer, row, col) will be located in keymap array
                 offset = layer * self.rows * self.cols * 2 + row * self.cols * 2 + col * 2
-                keycode = struct.unpack("<H", keymap[offset:offset+2])[0]
+                keycode = struct.unpack(">H", keymap[offset:offset+2])[0]
                 self.layout[(layer, row, col)] = keycode
 
         for layer in range(self.layers):
