@@ -307,7 +307,6 @@ QK_RSFT = 0x1200
 QK_RALT = 0x1400
 QK_RGUI = 0x1800
 QK_FUNCTION = 0x2000
-QK_BL   = 0xD000
 QK_MAGIC = 0xE000
 
 
@@ -507,13 +506,13 @@ KEYCODES_MAGIC = [
 ]
 
 KEYCODES_BACKLIGHT = [
-    K(QK_BL|0x0000|0x01, "BL_ON", "BL On", "Set the backlight to max brightness"),
-    K(QK_BL|0x0000|0x00, "BL_OFF", "BL Off", "Turn the backlight off"),
-    K(QK_BL|0x0100|0x00, "BL_TOGG", "BL\nToggle", "Turn the backlight on or off"),
-    K(QK_BL|0x0200|0x00, "BL_INC", "BL\nLevel +", "Increase the backlight level"),
-    K(QK_BL|0x0300|0x00, "BL_DEC", "BL\nLevel - ", "Decrease the backlight level"),
-    K(QK_BL|0x0400|0x00, "BL_STEP", "BL\nCycle", "Cycle through backlight levels"),
-    K(QK_BL|0x0500|0x00, "BL_TMS", "BL\nTimeout", "Cycle through backlight timeout"),
+    K(23743, "BL_TOGG", "BL\nToggle", "Turn the backlight on or off"),
+    K(23744, "BL_STEP", "BL\nCycle", "Cycle through backlight levels"),
+    K(23745, "BL_BRTG", "BL\nBreath", "Toggle backlight breathing"),
+    K(23739, "BL_ON", "BL On", "Set the backlight to max brightness"),
+    K(23740, "BL_OFF", "BL Off", "Turn the backlight off"),
+    K(23742, "BL_INC", "BL +", "Increase the backlight level"),
+    K(23741, "BL_DEC", "BL - ", "Decrease the backlight level"),
 
     K(23746, "RGB_TOG", "RGB\nToggle", "Toggle RGB lighting on or off"),
     K(23747, "RGB_MOD", "RGB\nMode +", "Next RGB mode"),
@@ -861,8 +860,8 @@ def recreate_keyboard_keycodes(keyboard):
     KEYCODES_LAYERS.clear()
 
     if layers >= 4:
-        KEYCODES_LAYERS.append(Keycode(0x5F10, "FN_MO13", "FN\n(MO13)"))
-        KEYCODES_LAYERS.append(Keycode(0x5F11, "FN_MO23", "FN\n(MO24)"))
+        KEYCODES_LAYERS.append(Keycode(0x5F10, "FN_MO13", "Fn1\n(Fn3)"))
+        KEYCODES_LAYERS.append(Keycode(0x5F11, "FN_MO23", "Fn2\n(Fn3)"))
 
     KEYCODES_LAYERS.extend(
         generate_keycodes_for_mask("MO", 0x5100,
