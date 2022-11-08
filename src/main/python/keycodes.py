@@ -321,8 +321,11 @@ def LT(layer):
 RESET_KEYCODE = 0x5C00
 
 
-KEYCODES_QUANTUM = [
-    K(RESET_KEYCODE, "RESET", "Reset", "Reboot to bootloader"),
+KEYCODES_BOOT = [
+    K(RESET_KEYCODE, "RESET", "Reset", "Reboot to bootloader")
+]
+
+KEYCODES_MODIFIERS = [
     K(QK_ONE_SHOT_MOD | MOD_LSFT, "OSM(MOD_LSFT)", "OSM\nLSft", "Enable Left Shift for one keypress"),
     K(QK_ONE_SHOT_MOD | MOD_LCTL, "OSM(MOD_LCTL)", "OSM\nLCtl", "Enable Left Control for one keypress"),
     K(QK_ONE_SHOT_MOD | MOD_LALT, "OSM(MOD_LALT)", "OSM\nLAlt", "Enable Left Alt for one keypress"),
@@ -413,13 +416,6 @@ KEYCODES_QUANTUM = [
     K(QK_FUNCTION|0x0e, "QK_FN14", "Fn14"),
     K(QK_FUNCTION|0x0f, "QK_FN15", "Fn15"),
 
-    K(0x5A40, "QK_DEV_TURN", "DEV\nTurn", "Device turn"),
-    K(0x5A41, "QK_DEV_USB", "DEV\nUSB", "Device USB"),
-    K(0x5A42, "QK_DEV_24G", "DEV\n2.4G", "Device 2.4G"),
-    K(0x5A43, "QK_DEV_BT0", "DEV\nBT0", "Device BT0"),
-    K(0x5A44, "QK_DEV_BT1", "DEV\nBT1", "Device BT1"),
-    K(0x5A45, "QK_DEV_BT2", "DEV\nBT2", "Device BT2"),
-
     K(0x5C16, "KC_GESC", "~\nEsc", "Esc normally, but ~ when Shift or GUI is pressed"),
     K(0x5CD7, "KC_LSPO", "LS\n(", "Left Shift when held, ( when tapped"),
     K(0x5CD8, "KC_RSPC", "RS\n)", "Right Shift when held, ) when tapped"),
@@ -430,7 +426,7 @@ KEYCODES_QUANTUM = [
     K(0x5CD9, "KC_SFTENT", "RS\nEnter", "Right Shift when held, Enter when tapped"),
 ]
 
-KEYCODES_MAGIC = [
+KEYCODES_QUANTUM = [
     K(23554, "MAGIC_SWAP_CONTROL_CAPSLOCK", "Swap\nCtrl\nCaps", "Swap Caps Lock and Left Control", alias=["CL_SWAP"]),
     K(23563, "MAGIC_UNSWAP_CONTROL_CAPSLOCK", "Unswap\nCtrl\nCaps", "Unswap Caps Lock and Left Control",
       alias=["CL_NORM"]),
@@ -802,8 +798,8 @@ def recreate_keycodes():
 
     KEYCODES.clear()
     KEYCODES.extend(KEYCODES_SPECIAL + KEYCODES_BASIC + KEYCODES_SHIFTED + KEYCODES_ISO + KEYCODES_LAYERS +
-                    KEYCODES_QUANTUM + KEYCODES_MAGIC + KEYCODES_BACKLIGHT + KEYCODES_MEDIA + KEYCODES_TAP_DANCE + KEYCODES_MACRO +
-                    KEYCODES_USER + KEYCODES_HIDDEN + KEYCODES_MIDI)
+                    KEYCODES_BOOT + KEYCODES_MODIFIERS + KEYCODES_QUANTUM + KEYCODES_BACKLIGHT + KEYCODES_MEDIA +
+                    KEYCODES_TAP_DANCE + KEYCODES_MACRO + KEYCODES_USER + KEYCODES_HIDDEN + KEYCODES_MIDI)
     KEYCODES_MAP.clear()
     for keycode in KEYCODES:
         KEYCODES_MAP[keycode.code] = keycode
